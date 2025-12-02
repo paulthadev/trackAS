@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { supabase } from "../utils/supabaseClient";
 import Input from "../component/Input";
@@ -42,14 +43,23 @@ const RegisterLecturer = () => {
 
       if (authError) throw authError;
 
+      // Check if auth user was created
+      if (!authData.user) {
+        throw new Error("User creation failed. No user ID returned.");
+      }
+
       // After successful signup, insert lecturer details into the 'lecturers' table
       const { data: insertData, error: insertError } = await supabase
         .from("lecturers")
-        .insert({
-          fullName,
-          email,
-          phone_number: phoneNumber,
-        });
+        .insert([
+          {
+            auth_user_id: authData.user.id, // ✅ MUST ADD THIS LINE
+            fullName: fullName,
+            email: email,
+            phone_number: phoneNumber,
+            department: "Computer Science", // Optional field
+          }
+        ]);
 
       if (insertError) throw insertError;
 
@@ -57,7 +67,17 @@ const RegisterLecturer = () => {
       navigate("/loginLecturer");
     } catch (error) {
       console.error("Registration error:", error);
-      alert(error.message);
+      
+      // Show user-friendly error
+      if (error.message.includes("auth_user_id")) {
+        alert("Registration error: Could not link user account. Please try again.");
+      } else if (error.message.includes("duplicate key")) {
+        alert("This email is already registered.");
+      } else if (error.message.includes("null value")) {
+        alert("Missing required information. Please check all fields.");
+      } else {
+        alert(`Registration failed: ${error.message}`);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -68,7 +88,7 @@ const RegisterLecturer = () => {
       <div className="grid md:grid-cols-2">
         <form
           onSubmit={handleRegister}
-          className="px-6 lg:px-[133px] overflow-scroll  h-[100vh]"
+          className="px-6 lg:px-[133px] overflow-scroll h-[100vh]"
         >
           <div className="flex flex-col items-center">
             <img src={Logo} alt="logo" className="w-32 mt-8" />
@@ -146,9 +166,9 @@ const RegisterLecturer = () => {
           />
         </div>
       </div>
-      <Footer/>
+      <Footer />
     </section>
   );
 };
 
-export default RegisterLecturer;
+ export default RegisterLecturer;
