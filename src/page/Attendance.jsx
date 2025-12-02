@@ -24,14 +24,14 @@ const StudentLogin = () => {
   const [classDetails, setClassDetails] = useState(null);
   const [matricNumber, setMatricNumber] = useState("");
   const [name, setName] = useState("");
-  const [thresholdMeters, setThresholdMeters] = useState(50); // ✅ NEW: Threshold state
-  const [locationStatus, setLocationStatus] = useState(""); // ✅ NEW: Status message
+  const [thresholdMeters, setThresholdMeters] = useState(50);
+  const [locationStatus, setLocationStatus] = useState(""); 
 
   const courseId = queryParams.get("courseId");
   const courseCode = queryParams.get("courseCode");
   const lat = parseFloat(queryParams.get("lat"));
   const lng = parseFloat(queryParams.get("lng"));
-  const thresholdFromURL = parseInt(queryParams.get("threshold")) || 50; // ✅ NEW: Get threshold from URL
+  const thresholdFromURL = parseInt(queryParams.get("threshold")) || 50;
 
   useEffect(() => {
     const fetchClassDetails = async () => {
@@ -45,7 +45,7 @@ const StudentLogin = () => {
         console.error("Error fetching class details:", error);
       } else {
         setClassDetails(data);
-        // ✅ Use threshold from database if available, otherwise from URL
+        //  Use threshold from database if available, otherwise from URL
         const dbThreshold = data?.threshold_meters || thresholdFromURL;
         setThresholdMeters(dbThreshold);
         console.log("Threshold set to:", dbThreshold);
@@ -66,25 +66,25 @@ const StudentLogin = () => {
             const distance = calculateDistance(userLat, userLng, lat, lng);
             setUserDistance(distance);
 
-            // ✅ UPDATED: Check if the distance is within threshold
+            // UPDATED: Check if the distance is within threshold
             const withinRange = distance <= thresholdMeters;
             setIsWithinRange(withinRange);
             
-            // ✅ NEW: Set status message
+            //  NEW: Set status message
             if (withinRange) {
-              setLocationStatus(`✅ You are within ${thresholdMeters}m range (${distance.toFixed(1)}m)`);
+              setLocationStatus(` You are within ${thresholdMeters}m range (${distance.toFixed(1)}m)`);
             } else {
-              setLocationStatus(`❌ You are ${(distance - thresholdMeters).toFixed(1)}m outside ${thresholdMeters}m range`);
+              setLocationStatus(` You are ${(distance - thresholdMeters).toFixed(1)}m outside ${thresholdMeters}m range`);
             }
           },
           (error) => {
             toast.error(`Error getting user location., ${error.message}`);
-            setLocationStatus("❌ Failed to get your location");
+            setLocationStatus(" Failed to get your location");
           }
         );
       } else {
         toast.error("Geolocation is not supported by this browser.");
-        setLocationStatus("❌ Geolocation not supported");
+        setLocationStatus("Geolocation not supported");
       }
     };
 
@@ -130,9 +130,9 @@ const StudentLogin = () => {
       matric_no: matricNumber.trim().toUpperCase(),
       name: name.toUpperCase(),
       timestamp: new Date().toISOString(),
-      distance: userDistance?.toFixed(1), // ✅ NEW: Store distance in attendance record
-      within_threshold: isWithinRange, // ✅ NEW: Store if within threshold
-      threshold_used: thresholdMeters // ✅ NEW: Store threshold used
+      distance: userDistance?.toFixed(1), //  NEW: Store distance in attendance record
+      within_threshold: isWithinRange, //  NEW: Store if within threshold
+      threshold_used: thresholdMeters //  NEW: Store threshold used
     };
 
     const updatedAttendees = [...attendees, newAttendee];
@@ -191,7 +191,7 @@ const StudentLogin = () => {
                 Note: {classDetails.note}
               </p>
               
-              {/* ✅ UPDATED: Distance information with threshold */}
+              {/*  UPDATED: Distance information with threshold */}
               <div className="mt-3 p-3 bg-gray-50 rounded-lg">
                 <p className="text-[#000D46] font-bold">
                   📍 Location Verification
@@ -210,7 +210,7 @@ const StudentLogin = () => {
                   {locationStatus || "Checking location..."}
                 </p>
                 
-                {/* ✅ NEW: Visual indicator */}
+                {/*  NEW: Visual indicator */}
                 <div className="mt-2">
                   <div className="flex justify-between text-xs mb-1">
                     <span>0m</span>
@@ -257,7 +257,7 @@ const StudentLogin = () => {
           ) : (
             <div className="p-3 bg-red-50 rounded-lg mt-3">
               <p className="text-red-600 font-bold">
-                ❌ Cannot Mark Attendance
+                 Cannot Mark Attendance
               </p>
               <p className="text-sm text-red-500">
                 You must be within {thresholdMeters} meters of the lecture venue to register.
